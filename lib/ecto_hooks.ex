@@ -74,7 +74,7 @@ defmodule EctoHooks do
   defdelegate enable_hooks, to: State
 
   @doc """
-  Disables the next `before_*` or `after_*` hook from executing. 
+  Disables the next `before_*` or `after_*` hook from executing.
 
   This is automatically cleared after triggering any `Ecto.Repo` callback.
   """
@@ -112,23 +112,29 @@ defmodule EctoHooks do
 
   for hook <- @hooks do
     @doc false
-    def unquote(hook)(struct, caller_function, delta \\ nil)
+    # def unquote(hook)(struct, caller_function, delta \\ nil)
 
-    def unquote(hook)(struct, caller_function, delta) when is_struct(struct) do
-      hook = unquote(hook)
+    def unquote(hook)(struct, caller_function, delta \\ nil) do
+      if is_map(struct) && Map.has_key?(struct, :__struct__) do
+        hook = unquote(hook)
 
-      struct
-      |> get_schema_module()
-      |> execute_hook(hook, struct, delta && Delta.new!(caller_function, hook, delta))
+        struct
+        |> get_schema_module()
+        |> execute_hook(hook, struct, delta && Delta.new!(caller_function, hook, delta))
+      else
+        struct
+      end
     end
 
-    def unquote(hook)(data, _delta, _caller_function) do
-      data
-    end
+    # def unquote(hook)(data, _delta, _caller_function) do
+    #   data
+    # end
   end
 
-  defp get_schema_module(struct) when is_struct(struct) do
-    if struct.__struct__ == Ecto.Changeset && struct.data do
+
+  # defp get_schema_module(struct) when struct[:__struct__] do
+  defp get_schema_module(struct) do
+    if Map.has_key?(struct, :__struct__) && struct.__struct__ == Ecto.Changeset && struct.data do
       struct.data.__struct__
     else
       struct.__struct__

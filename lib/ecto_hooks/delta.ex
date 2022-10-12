@@ -34,8 +34,8 @@ defmodule EctoHooks.Delta do
     :insert_or_update,
     :one!,
     :one,
-    :reload!,
-    :reload,
+    # :reload!,
+    # :reload,
     :update!,
     :update
   ]
@@ -71,7 +71,7 @@ defmodule EctoHooks.Delta do
       is_atom(source) && function_exported?(source, :__schema__, 2) ->
         %Delta{delta | queryable: source}
 
-      is_struct(source) && function_exported?(source.__struct__, :__schema__, 2) ->
+      Map.has_key?(source, :__struct__) && function_exported?(source.__struct__, :__schema__, 2) ->
         %Delta{delta | record: source}
 
       is_list(source) ->

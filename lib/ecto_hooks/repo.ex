@@ -174,13 +174,14 @@ defmodule EctoHooks.Repo do
                      insert_or_update: 2,
                      one!: 2,
                      one: 2,
-                     reload!: 2,
-                     reload: 2,
+                    #  reload!: 2,
+                    #  reload: 2,
                      update!: 2,
                      update: 2
 
       def insert(changeset, opts) do
         changeset = EctoHooks.before_insert(changeset, :insert)
+        |> IO.inspect(label: "result before insert")
 
         with {:ok, result} <- super(changeset, opts) do
           {:ok, EctoHooks.after_insert(result, :insert, changeset)}
@@ -253,29 +254,29 @@ defmodule EctoHooks.Repo do
         |> Enum.map(&EctoHooks.after_get(&1, :all, query))
       end
 
-      def reload(struct_or_structs, opts) do
-        struct_or_structs
-        |> super(opts)
-        |> case do
-          structs when is_list(structs) ->
-            Enum.map(structs, &EctoHooks.after_get(&1, :reload, struct_or_structs))
+      # def reload(struct_or_structs, opts) do
+      #   struct_or_structs
+      #   |> super(opts)
+      #   |> case do
+      #     structs when is_list(structs) ->
+      #       Enum.map(structs, &EctoHooks.after_get(&1, :reload, struct_or_structs))
 
-          struct ->
-            EctoHooks.after_get(struct, :reload, struct_or_structs)
-        end
-      end
+      #     struct ->
+      #       EctoHooks.after_get(struct, :reload, struct_or_structs)
+      #   end
+      # end
 
-      def reload!(struct_or_structs, opts) do
-        struct_or_structs
-        |> super(opts)
-        |> case do
-          structs when is_list(structs) ->
-            Enum.map(structs, &EctoHooks.after_get(&1, :reload!, struct_or_structs))
+      # def reload!(struct_or_structs, opts) do
+      #   struct_or_structs
+      #   |> super(opts)
+      #   |> case do
+      #     structs when is_list(structs) ->
+      #       Enum.map(structs, &EctoHooks.after_get(&1, :reload!, struct_or_structs))
 
-          struct ->
-            EctoHooks.after_get(struct, :reload!, struct_or_structs)
-        end
-      end
+      #     struct ->
+      #       EctoHooks.after_get(struct, :reload!, struct_or_structs)
+      #   end
+      # end
 
       def delete(changeset_or_query, opts) do
         changeset_or_query = EctoHooks.before_delete(changeset_or_query, :delete)
